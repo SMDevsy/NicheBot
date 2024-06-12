@@ -1,0 +1,21 @@
+{
+  "name": "nichebot",
+  "version": "1.0.0",
+  "description": "Bot for the Niche server",
+  "main": "main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node --env-file .env dist/main.js",
+    "all": "tsc && node --env-file .env dist/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@discordjs/voice": "^0.17.0",
+    "discord.js": "^14.15.3"
+  }
+}
