@@ -1,4 +1,4 @@
-import { REST, Routes } from "discord.js";
+import { ChatInputCommandInteraction, REST, Routes } from "discord.js";
 import { Client, GatewayIntentBits } from "discord.js";
 
 export const BOT_CONFIG = {
@@ -15,6 +15,9 @@ Bot.on("ready", () => {
 
 Bot.on("interactionCreate", async interaction => {
   if (!interaction.isCommand()) {
+    return;
+  }
+  if (!(interaction instanceof ChatInputCommandInteraction)) {
     return;
   }
 

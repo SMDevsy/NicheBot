@@ -2,6 +2,7 @@
 
 ## Setup
 ```
+npm install --save-dev typescript
 npm install
 ```
 ## Run
