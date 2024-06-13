@@ -1,4 +1,10 @@
-import { VoiceConnection } from "@discordjs/voice";
+import {
+  AudioPlayer,
+  NoSubscriberBehavior,
+  VoiceConnection,
+  createAudioPlayer
+} from "@discordjs/voice";
+import VideoData from "./music/VideoData";
 
 class BotState {
   isInChannel: boolean = false;
@@ -7,6 +13,12 @@ class BotState {
   isLooping: boolean = false;
   isShuffling: boolean = false;
   voiceConnection: VoiceConnection | null = null;
+  songQueue: Array<VideoData> = [];
+  audioPlayer: AudioPlayer | null = createAudioPlayer({
+    behaviors: {
+      noSubscriber: NoSubscriberBehavior.Pause
+    }
+  });
 
   constructor() {}
 }
