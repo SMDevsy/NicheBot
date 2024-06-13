@@ -1,5 +1,5 @@
 import { PlaylistVideo, YouTubeData } from "yt-stream";
-import { ytstream } from "./resolveQuery";
+import Fetcher from "./Fetcher";
 
 interface VideoAuthor {
   name: string;
@@ -35,11 +35,12 @@ export default class VideoData {
     data: PlaylistVideo
   ): Promise<VideoData | null> {
     try {
-      const details: YouTubeData = await ytstream.getInfo(data.video_url);
+      const url = new URL(data.video_url);
+      const details = await Fetcher.fetchInfo(url);
       return VideoData.fromSingleYtItem(details);
     } catch (err) {
       // the video is probably age restricted
-      //console.log(err);
+      console.error(err);
       return null;
     }
   }

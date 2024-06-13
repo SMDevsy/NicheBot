@@ -1,6 +1,5 @@
+import Fetcher from "./Fetcher";
 import VideoData, { VideoDataResponses } from "./VideoData";
-
-export const ytstream = require("yt-stream");
 
 function isValidHttpUrl(string): boolean {
   try {
@@ -18,20 +17,6 @@ function isValidYoutubeUrl(url: URL): boolean {
 
 async function resolveSearchQuery(query: string): Promise<URL[]> {
   throw new Error("Unimplemented");
-}
-
-/**
- * Resolves a YouTube playlist to a list of URLs or nulls if it failed.
- * @param listId The ID of the YouTube playlist to resolve
- * @returns A list of short URLs that the playlist resolves to
- */
-async function resolveYoutubePlaylist(
-  listId: string
-): Promise<VideoDataResponses> {
-  const url = `https://www.youtube.com/playlist?list=${listId}`;
-  const playlistInfo = await ytstream.getPlaylist(url);
-  const videoData = playlistInfo.videos.map(VideoData.fromPlaylistYtItem);
-  return await Promise.all(videoData);
 }
 
 /**
@@ -56,20 +41,15 @@ export async function resolveQuery(query: string): Promise<VideoDataResponses> {
 
   // is the query a playlist?
   if (url.searchParams.has("list")) {
-    console.log("Query is a youtube playlist");
     const listId = url.searchParams.get("list")!;
-    const index = url.searchParams.get("index");
-    return await resolveYoutubePlaylist(listId);
-  } else {
-    console.log("Query is a single video");
-    try {
-      const info = await ytstream.getInfo(query);
-      const data = VideoData.fromSingleYtItem(info);
-      console.log(data);
-      return [data];
-    } catch (err) {
-      console.log("Failed to fetch video data");
-      return [null];
-    }
+    const index = parseInt(url.searchParams.get("index")!);
+    const playlistData = await Fetcher.fetchPlaylist(listId);
+    const videoData = playlistData.map(VideoData.fromPlaylistYtItem);
+    const playlist = await Promise.all(videoData);
+    return playlist.slice(index - 1, playlist.length - 1);
   }
+
+  // single video
+  const ytData = await Fetcher.fetchInfo(url);
+  return [VideoData.fromSingleYtItem(ytData)];
 }
