@@ -8,7 +8,9 @@ export const BOT_CONFIG = {
   client_id: process.env.CLIENT_ID!!
 };
 
-export const Bot = new Client({ intents: [GatewayIntentBits.Guilds] });
+export const Bot = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates]
+});
 
 Bot.on("ready", () => {
   console.log(`Logged in as ${Bot.user!.tag}!`);
