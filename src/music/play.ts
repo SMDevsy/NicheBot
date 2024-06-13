@@ -1,5 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import NicheBotCommand from "../NicheBotCommand";
+import { resolveQuery } from "./resolveQuery";
+import Fetcher from "./Fetcher";
 
 const data = new SlashCommandBuilder()
   .setName("play")
@@ -12,9 +14,12 @@ const data = new SlashCommandBuilder()
   );
 
 async function execute(interaction: ChatInputCommandInteraction) {
-  const query = interaction.options.getString("query");
-  console.log(`Playing ${query}`);
-  await interaction.reply("Playing!" + query);
+  const query = interaction.options.getString("query", true);
+  await interaction.reply("Working...");
+  const videos = await resolveQuery(query);
+  console.log(videos);
+  await Fetcher.fetchAudio(videos[0]!);
+  await interaction.editReply("Successfully fetched YouTube Info");
 }
 
 const playCommand = new NicheBotCommand(data, execute);
