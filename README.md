@@ -1,6 +1,12 @@
 # NicheBot
 
 ## Setup
+Install `yt-dlp`
+```
+python3 -m pip install -U "yt-dlp[default]"
+```
+
+Install TypeScript and all dependencies
 ```
 npm install --save-dev typescript
 npm install

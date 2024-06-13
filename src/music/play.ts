@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import NicheBotCommand from "../NicheBotCommand";
+import { resolveQuery } from "./resolveQuery";
 
 const data = new SlashCommandBuilder()
   .setName("play")
@@ -12,9 +13,20 @@ const data = new SlashCommandBuilder()
   );
 
 async function execute(interaction: ChatInputCommandInteraction) {
-  const query = interaction.options.getString("query");
+  const query = interaction.options.getString("query", true);
   console.log(`Playing ${query}`);
-  await interaction.reply("Playing!" + query);
+  const videos = await resolveQuery(query);
+  console.log(videos);
+  //await interaction.reply("Playing!" + query);
+}
+
+function isValidHttpUrl(string) {
+  try {
+    const newUrl = new URL(string);
+    return newUrl.protocol === "http:" || newUrl.protocol === "https:";
+  } catch (err) {
+    return false;
+  }
 }
 
 const playCommand = new NicheBotCommand(data, execute);
