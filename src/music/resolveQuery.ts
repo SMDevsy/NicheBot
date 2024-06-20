@@ -1,19 +1,7 @@
 import Fetcher from "./Fetcher";
 import VideoData, { VideoDataResponses } from "./VideoData";
+import UrlValidator from "./UrlValidator";
 
-function isValidHttpUrl(string): boolean {
-  try {
-    const newUrl = new URL(string);
-    return newUrl.protocol === "http:" || newUrl.protocol === "https:";
-  } catch (err) {
-    return false;
-  }
-}
-
-function isValidYoutubeUrl(url: URL): boolean {
-  const validHosts = ["www.youtube.com", "youtu.be"];
-  return validHosts.includes(url.hostname);
-}
 
 async function resolveSearchQuery(query: string): Promise<URL[]> {
   throw new Error("Unimplemented");
@@ -28,19 +16,19 @@ async function resolveSearchQuery(query: string): Promise<URL[]> {
  */
 export async function resolveQuery(query: string): Promise<VideoDataResponses> {
   // is the query a URL?
-  if (!isValidHttpUrl(query)) {
+  if (!UrlValidator.isValidHttpUrl(query)) {
     throw new Error("Queries not supported yet");
   }
 
   const url = new URL(query);
 
   // is the query a youtube link?
-  if (!isValidYoutubeUrl(url)) {
+  if (!UrlValidator.isValidYoutubeUrl(url)) {
     throw new Error("Not a YouTube URL");
   }
 
   // is the query a playlist?
-  if (url.searchParams.has("list")) {
+  if (UrlValidator.isPlaylistUrl(url)) {
     const listId = url.searchParams.get("list")!;
     const index = parseInt(url.searchParams.get("index")!);
     const playlistData = await Fetcher.fetchPlaylist(listId);
