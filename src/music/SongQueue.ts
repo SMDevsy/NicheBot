@@ -15,10 +15,13 @@ export default class SongQueue {
   }
 
   nextSong(): VideoData | undefined {
-    if (this.looping) {
-      this.queue.push(this.queue.shift() as VideoData);
+    if (!this.looping) {
+      this.queue.shift();
     }
-    this.queue.shift();
+    if (this.queue.length === 0) {
+      return undefined;
+    }
+    this.queue.push(this.queue.shift() as VideoData);
     return this.currentSong();
   }
 
@@ -46,8 +49,9 @@ export default class SongQueue {
     this.queue = [];
   }
 
-  toggleLooping() {
+  toggleLooping(): boolean {
     this.looping = !this.looping;
+    return this.looping;
   }
 
   getQueue() {

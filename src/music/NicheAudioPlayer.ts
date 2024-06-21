@@ -21,8 +21,13 @@ export default class NicheAudioPlayer {
       if (newState.status == "idle") {
         console.log("Song playback finished");
         const nextSong = BOT_STATE.songQueue.nextSong();
+        console.log("Next song:");
+        console.log(nextSong);
+        console.log("Queue:");
+        console.log(BOT_STATE.songQueue);
         if (!nextSong) {
           console.log("Queue is empty");
+          console.log(BOT_STATE.songQueue);
           return;
         }
         console.log("Playing next song");

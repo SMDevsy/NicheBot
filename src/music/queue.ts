@@ -17,6 +17,9 @@ async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
+  console.log("Showing queue...");
+  console.log(BOT_STATE.songQueue.getQueue());
+
   const reply = BOT_STATE.songQueue
     .getQueue()
     .map((v, i) => `${i + 1}. ${v.title}`)
