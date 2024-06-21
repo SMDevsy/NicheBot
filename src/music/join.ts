@@ -42,7 +42,9 @@ async function execute(interaction: ChatInputCommandInteraction) {
     BOT_STATE.voiceConnection = null;
   });
 
-  await interaction.reply("Joined voice channel!");
+  // commented out to prevent replying to the same interaction twice
+  // this log is not needed anyway
+  //await interaction.reply("Joined voice channel!");
 }
 
 const joinCommand = new NicheBotCommand(data, execute);

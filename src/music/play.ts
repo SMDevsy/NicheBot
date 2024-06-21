@@ -1,10 +1,11 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder, VoiceChannel } from "discord.js";
 import NicheBotCommand from "../NicheBotCommand";
 import { resolveQuery } from "./resolveQuery";
 import Fetcher from "./Fetcher";
 import BOT_STATE from "../BotState";
 import VideoData from "./VideoData";
 import { createAudioResource } from "@discordjs/voice";
+import joinCommand from "./join";
 
 const data = new SlashCommandBuilder()
   .setName("play")
@@ -16,9 +17,14 @@ const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 
-async function execute(interaction: ChatInputCommandInteraction) {
+async function execute(interaction: ChatInputCommandInteraction | any) {
   const query = interaction.options.getString("query", true);
   await interaction.reply("Working...");
+
+  if (!BOT_STATE.voiceConnection) {
+    joinCommand.execute(interaction);
+  }
+  
   let videos: (VideoData | null)[] = [];
   try {
     videos = await resolveQuery(query);
