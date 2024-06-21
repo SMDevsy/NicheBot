@@ -1,13 +1,13 @@
 import { SlashCommandBuilder } from "discord.js";
 import NicheBotCommand from "../NicheBotCommand";
-import BOT_STATE from "../BotState";
+import NicheBot from "../NicheBot";
 
 const data = new SlashCommandBuilder()
   .setName("resume")
   .setDescription("Resume the current song");
 
 async function execute(interaction) {
-  const isPaused = BOT_STATE.audioPlayer._getPlayer().unpause();
+  const isPaused = NicheBot.audioPlayer._getPlayer().unpause();
   await interaction.reply(`The player is now unpaused`);
 }
 

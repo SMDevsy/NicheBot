@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import NicheBotCommand from "../NicheBotCommand";
-import BOT_STATE from "../BotState";
+import NicheBot from "../NicheBot";
 import { createAudioResource } from "@discordjs/voice";
 import Fetcher from "./Fetcher";
 
@@ -18,12 +18,12 @@ const data = new SlashCommandBuilder()
 async function execute(interaction: ChatInputCommandInteraction) {
   console.log("Skipping song...");
   const amount = interaction.options.getInteger("amount") || 1;
-  const queue = BOT_STATE.songQueue;
+  const queue = NicheBot.songQueue;
   const nextSong = queue.skipSongs(amount);
 
   if (!nextSong) {
     await interaction.reply("Queue finished!");
-    BOT_STATE.audioPlayer._getPlayer().stop();
+    NicheBot.audioPlayer._getPlayer().stop();
     return;
   }
 
@@ -31,7 +31,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
 
   const fetched = await Fetcher.fetchAudio(nextSong);
   const resource = createAudioResource(fetched);
-  BOT_STATE.audioPlayer.play(resource);
+  NicheBot.audioPlayer.play(resource);
 
   interaction.editReply(`Skipped ${amount} songs!`);
 }

@@ -2,7 +2,7 @@ import { VoiceConnection } from "@discordjs/voice";
 import SongQueue from "./music/SongQueue";
 import NicheAudioPlayer from "./music/NicheAudioPlayer";
 
-class BotState {
+class NicheBotClass {
   voiceConnection: VoiceConnection | null = null;
   songQueue: SongQueue = new SongQueue();
   audioPlayer: NicheAudioPlayer = new NicheAudioPlayer();
@@ -14,6 +14,6 @@ class BotState {
   constructor() {}
 }
 
-let BOT_STATE = new BotState();
+let NicheBot = new NicheBotClass();
 
-export default BOT_STATE;
+export default NicheBot;

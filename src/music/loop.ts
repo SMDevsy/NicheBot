@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import NicheBotCommand from "../NicheBotCommand";
-import BOT_STATE from "../BotState";
+import NicheBot from "../NicheBot";
 import { LoopType } from "../music/SongQueue";
 
 const data = new SlashCommandBuilder()
@@ -26,9 +26,9 @@ function loopMessage(loopType: LoopType) {
 }
 
 async function execute(interaction) {
-  const defaultLoopType = (BOT_STATE.songQueue.looping === "disabled") ?  "all" : "disabled";
+  const defaultLoopType = (NicheBot.songQueue.looping === "disabled") ?  "all" : "disabled";
   const loopType = interaction.options.getString("looptype") ?? defaultLoopType;
-  BOT_STATE.songQueue.setLoopType(loopType);
+  NicheBot.songQueue.setLoopType(loopType);
   await interaction.reply(loopMessage(loopType));
 }
 

@@ -17,9 +17,9 @@ process.on("SIGINT", async () => {
   if (shuttingDown) return;
   shuttingDown = true;
 
-  console.log("Shutting down...");
+  console.log("\nShutting down...");
   
-  BOT_STATE.disconnect();
+  NicheBot.disconnect();
   await Bot.destroy();
 
   process.exit(0);
@@ -45,7 +45,7 @@ Bot.on("interactionCreate", async interaction => {
 });
 
 import commands from "./commands";
-import BOT_STATE from "./BotState";
+import NicheBot from "./NicheBot";
 
 export async function init() {
   console.log("Downloading yt-dlp...");

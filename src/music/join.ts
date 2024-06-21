@@ -6,14 +6,14 @@ import {
 } from "discord.js";
 import NicheBotCommand from "../NicheBotCommand";
 import { VoiceConnectionStatus, joinVoiceChannel } from "@discordjs/voice";
-import BOT_STATE from "../BotState";
+import NicheBot from "../NicheBot";
 
 const data = new SlashCommandBuilder()
   .setName("join")
   .setDescription("Joins the voice channel");
 
 async function execute(interaction: ChatInputCommandInteraction | any) {
-  if (BOT_STATE.voiceConnection) {
+  if (NicheBot.voiceConnection) {
     await interaction.reply("I'm already in a voice channel!");
     return;
   }
@@ -35,11 +35,11 @@ async function execute(interaction: ChatInputCommandInteraction | any) {
 
   voiceConnection.on(VoiceConnectionStatus.Ready, () => {
     console.log("Successfully joined voice channel.");
-    BOT_STATE.voiceConnection = voiceConnection;
+    NicheBot.voiceConnection = voiceConnection;
   });
   voiceConnection.on(VoiceConnectionStatus.Disconnected, () => {
     console.log("Disconnected from voice channel.");
-    BOT_STATE.voiceConnection = null;
+    NicheBot.voiceConnection = null;
   });
 
   // prevent replying to the same interaction twice

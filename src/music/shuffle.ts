@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import BOT_STATE from "../BotState";
+import NicheBot from "../NicheBot";
 import NicheBotCommand from "../NicheBotCommand";
 
 const data = new SlashCommandBuilder()
@@ -7,7 +7,7 @@ const data = new SlashCommandBuilder()
   .setDescription("Shuffle the queue");
 
 async function execute(interaction) {
-  BOT_STATE.songQueue.shuffle();
+  NicheBot.songQueue.shuffle();
   await interaction.reply("Shuffled the queue!");
 }
 

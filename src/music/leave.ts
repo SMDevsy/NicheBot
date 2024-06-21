@@ -6,20 +6,20 @@ import {
 } from "discord.js";
 import NicheBotCommand from "../NicheBotCommand";
 import { VoiceConnectionStatus, joinVoiceChannel } from "@discordjs/voice";
-import BOT_STATE from "../BotState";
+import NicheBot from "../NicheBot";
 
 const data = new SlashCommandBuilder()
   .setName("leave")
   .setDescription("Leaves the voice channel");
 
 async function execute(interaction: ChatInputCommandInteraction) {
-  if (!BOT_STATE.voiceConnection) {
+  if (!NicheBot.voiceConnection) {
     await interaction.reply("I'm not in a voice channel!");
     return;
   }
 
   console.log("Leaving voice channel...");
-  BOT_STATE.disconnect();
+  NicheBot.disconnect();
 
   await interaction.reply("Left the voice channel!");
 }

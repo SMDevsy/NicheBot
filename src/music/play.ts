@@ -7,7 +7,7 @@ import {
 import NicheBotCommand from "../NicheBotCommand";
 import { resolveQuery } from "./resolveQuery";
 import Fetcher from "./Fetcher";
-import BOT_STATE from "../BotState";
+import NicheBot from "../NicheBot";
 import VideoData from "./VideoData";
 import { createAudioResource } from "@discordjs/voice";
 import joinCommand from "./join";
@@ -27,7 +27,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
   const query = interaction.options.getString("query", true);
   await interaction.reply("Working...");
 
-  if (!BOT_STATE.voiceConnection) {
+  if (!NicheBot.voiceConnection) {
     joinCommand.execute(interaction);
   }
 
@@ -52,7 +52,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  let queue = BOT_STATE.songQueue;
+  let queue = NicheBot.songQueue;
 
   if (!queue.isEmpty()) {
     queue.addSongs(filtered);
@@ -64,11 +64,11 @@ async function execute(interaction: ChatInputCommandInteraction) {
   const audioPath = await Fetcher.fetchAudio(queue.currentSong()!);
   const resource = createAudioResource(audioPath);
 
-  BOT_STATE.voiceConnection!.subscribe(BOT_STATE.audioPlayer._getPlayer());
-  BOT_STATE.audioPlayer.play(resource);
+  NicheBot.voiceConnection!.subscribe(NicheBot.audioPlayer._getPlayer());
+  NicheBot.audioPlayer.play(resource);
 
   await interaction.editReply(
-    `Playing ${BOT_STATE.songQueue.currentSong()!.title}`
+    `Playing ${NicheBot.songQueue.currentSong()!.title}`
   );
 }
 

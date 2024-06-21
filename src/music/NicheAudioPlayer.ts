@@ -5,7 +5,7 @@ import {
   createAudioPlayer,
   createAudioResource
 } from "@discordjs/voice";
-import BOT_STATE from "../BotState";
+import NicheBot from "../NicheBot";
 import Fetcher from "./Fetcher";
 
 export default class NicheAudioPlayer {
@@ -20,14 +20,14 @@ export default class NicheAudioPlayer {
     player.addListener("stateChange", async (oldState, newState) => {
       if (newState.status == "idle") {
         console.log("Song playback finished");
-        const nextSong = BOT_STATE.songQueue.nextSong();
+        const nextSong = NicheBot.songQueue.nextSong();
         console.log("Next song:");
         console.log(nextSong);
         console.log("Queue:");
-        console.log(BOT_STATE.songQueue);
+        console.log(NicheBot.songQueue);
         if (!nextSong) {
           console.log("Queue is empty");
-          console.log(BOT_STATE.songQueue);
+          console.log(NicheBot.songQueue);
           return;
         }
         console.log("Playing next song");

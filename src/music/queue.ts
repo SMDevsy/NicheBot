@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import BOT_STATE from "../BotState";
+import NicheBot from "../NicheBot";
 import NicheBotCommand from "../NicheBotCommand";
 
 const data = new SlashCommandBuilder()
@@ -7,20 +7,20 @@ const data = new SlashCommandBuilder()
   .setDescription("Show the current queue");
 
 async function execute(interaction: ChatInputCommandInteraction) {
-  if (!BOT_STATE.voiceConnection) {
+  if (!NicheBot.voiceConnection) {
     await interaction.reply("I'm not in a voice channel!");
     return;
   }
 
-  if (BOT_STATE.songQueue.isEmpty()) {
+  if (NicheBot.songQueue.isEmpty()) {
     await interaction.reply("The queue is empty!");
     return;
   }
 
   console.log("Showing queue...");
-  console.log(BOT_STATE.songQueue.getQueue());
+  console.log(NicheBot.songQueue.getQueue());
 
-  const reply = BOT_STATE.songQueue
+  const reply = NicheBot.songQueue
     .getQueue()
     .map((v, i) => `${i + 1}. ${v.title}`)
     .join("\n");
