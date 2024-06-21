@@ -19,17 +19,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
   }
 
   console.log("Leaving voice channel...");
-  const member = interaction.member as GuildMember;
-  const channel = member.voice.channel as VoiceChannel | null;
-
-  if (!channel) {
-    await interaction.reply("You need to be in a channel to make me leave!");
-    return;
-  }
-
-  BOT_STATE.voiceConnection.destroy();
-  BOT_STATE.voiceConnection = null;
-  BOT_STATE.songQueue.clear();
+  BOT_STATE.disconnect();
 
   await interaction.reply("Left the voice channel!");
 }

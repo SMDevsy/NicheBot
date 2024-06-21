@@ -12,6 +12,19 @@ export const Bot = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates]
 });
 
+let shuttingDown = false;
+process.on("SIGINT", async () => {
+  if (shuttingDown) return;
+  shuttingDown = true;
+
+  console.log("Shutting down...");
+  
+  BOT_STATE.disconnect();
+  await Bot.destroy();
+
+  process.exit(0);
+});
+
 Bot.on("ready", () => {
   console.log(`Logged in as ${Bot.user!.tag}!`);
 });
@@ -32,6 +45,7 @@ Bot.on("interactionCreate", async interaction => {
 });
 
 import commands from "./commands";
+import BOT_STATE from "./BotState";
 
 export async function init() {
   console.log("Downloading yt-dlp...");

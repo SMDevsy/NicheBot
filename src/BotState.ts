@@ -6,7 +6,11 @@ class BotState {
   voiceConnection: VoiceConnection | null = null;
   songQueue: SongQueue = new SongQueue();
   audioPlayer: NicheAudioPlayer = new NicheAudioPlayer();
-
+  disconnect() {
+    this.voiceConnection?.destroy();
+    this.voiceConnection = null;
+    this.songQueue.clear();
+  }
   constructor() {}
 }
 
