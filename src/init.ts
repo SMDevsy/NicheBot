@@ -34,7 +34,9 @@ Bot.on("interactionCreate", async interaction => {
 import commands from "./commands";
 
 export async function init() {
-  const downloadYTDlp = YTDlpWrap.downloadFromGithub();
+  console.log("Downloading yt-dlp...");
+  const downloadYTDlp = await YTDlpWrap.downloadFromGithub();
+  console.log("Downloaded yt-dlp.");
 
   const commandData = commands.map(command => command.data);
   const rest = new REST({ version: "10" }).setToken(BOT_CONFIG.token);

@@ -29,7 +29,9 @@ async function resolveSearchQuery(query: string): Promise<URL[]> {
 export async function resolveQuery(query: string): Promise<VideoDataResponses> {
   // is the query a URL?
   if (!isValidHttpUrl(query)) {
-    throw new Error("Queries not supported yet");
+    throw new Error(
+      "Search queries not supported yet. Please use a YouTube URL."
+    );
   }
 
   const url = new URL(query);
@@ -50,6 +52,11 @@ export async function resolveQuery(query: string): Promise<VideoDataResponses> {
   }
 
   // single video
-  const ytData = await Fetcher.fetchInfo(url);
-  return [VideoData.fromSingleYtItem(ytData)];
+  try {
+    const ytData = await Fetcher.fetchInfo(url);
+    return [VideoData.fromSingleYtItem(ytData)];
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 }

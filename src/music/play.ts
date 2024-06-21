@@ -19,8 +19,20 @@ const data = new SlashCommandBuilder()
 async function execute(interaction: ChatInputCommandInteraction) {
   const query = interaction.options.getString("query", true);
   await interaction.reply("Working...");
-  const videos = await resolveQuery(query);
+  let videos: (VideoData | null)[] = [];
+  try {
+    videos = await resolveQuery(query);
+  } catch (e: any) {
+    await interaction.editReply("An error occured while processing the query: " + e.message);; 
+    return;
+  }
+  
   console.log(videos);
+  if (videos.length === 0 || videos.every(v => v === null)) {
+    await interaction.editReply("No valid videos found! This may be due to age restrictions or internal errors.");
+    return;
+  }
+  
   // for now, just overwrite the queue.
   // erase null songs, for now there's no info that it was skipped. ADD LATER
   BOT_STATE.songQueue = videos.filter(v => v !== null) as VideoData[];

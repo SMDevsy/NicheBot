@@ -29,6 +29,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
 
   BOT_STATE.voiceConnection.destroy();
   BOT_STATE.voiceConnection = null;
+  BOT_STATE.songQueue = [];
 
   await interaction.reply("Left the voice channel!");
 }
