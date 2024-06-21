@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
-import NicheBotCommand from "./NicheBotCommand";
-import BOT_STATE from "./BotState";
+import NicheBotCommand from "../NicheBotCommand";
+import BOT_STATE from "../BotState";
 
 const data = new SlashCommandBuilder()
   .setName("loop")
