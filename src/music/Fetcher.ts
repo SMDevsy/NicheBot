@@ -2,6 +2,8 @@ import { PlaylistVideo, YouTubeData } from "yt-stream";
 import VideoData, { VideoDataResponses } from "./VideoData";
 import { createWriteStream } from "fs";
 import ytdlp from "ytdlp-nodejs";
+import ShortUniqueId from "short-unique-id";
+const { randomUUID } = new ShortUniqueId({ length: 10 });
 
 const ytstream = require("yt-stream");
 const fs = require("fs");
@@ -34,8 +36,17 @@ export default class Fetcher {
     return await ytstream.getInfo(url.href);
   }
 
+  private static normalizeTitle(title: string): string {
+    return title
+    .replace(/'|"/gi, "")
+    .replace(/[\/ —-]/gi, "_")
+    .replace(/[_]+/gi, "_")
+    + "_" + randomUUID();
+  }
+  
   static async fetchAudio(video: VideoData): Promise<string> {
-    const fileName = "./download/" + video.title + ".mp3";
+    const fileName = "./download/" +
+      this.normalizeTitle(video.title) + ".mp3";
     await ytdlpWrap.execPromise([
       video.url,
       "--format",
