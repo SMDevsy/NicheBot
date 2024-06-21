@@ -31,10 +31,12 @@ export default class SongQueue {
   }
 
   shuffle() {
-    for (let i = this.queue.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
+    const toShuffle = this.queue.slice(1);
+    for (let i = toShuffle.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * i);
+      [toShuffle[i], toShuffle[j]] = [toShuffle[j], toShuffle[i]];
     }
+    this.queue = [this.queue[0], ...toShuffle];
   }
 
   removeSong(index: number) {
