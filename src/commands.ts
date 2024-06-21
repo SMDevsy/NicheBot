@@ -1,4 +1,5 @@
 import NicheBotCommand from "./NicheBotCommand";
+import clearCommand from "./music/clear";
 import joinCommand from "./music/join";
 import leaveCommand from "./music/leave";
 import loopCommand from "./music/loop";
@@ -20,5 +21,6 @@ export default [
   loopCommand,
   pauseCommand,
   resumeCommand,
-  shuffleCommand
+  shuffleCommand,
+  clearCommand,
 ] as NicheBotCommand[];

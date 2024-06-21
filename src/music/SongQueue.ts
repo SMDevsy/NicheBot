@@ -1,8 +1,10 @@
 import VideoData from "./VideoData";
 
+export type LoopType = "one" | "all" | "disabled";
+
 export default class SongQueue {
   private queue: VideoData[] = [];
-  looping = false;
+  looping: LoopType = "disabled";
 
   private contructor() {}
 
@@ -15,19 +17,24 @@ export default class SongQueue {
   }
 
   nextSong(): VideoData | undefined {
-    if (!this.looping) {
+    if (this.looping == "one") {
+      return this.currentSong();
+    }
+    if (this.looping == "disabled") {
       this.queue.shift();
     }
     if (this.queue.length === 0) {
       return undefined;
     }
-    this.queue.push(this.queue.shift() as VideoData);
+    if (this.looping == "all") {
+      this.queue.push(this.queue.shift() as VideoData);
+    }
     return this.currentSong();
   }
 
   skipSongs(n: number): VideoData | undefined {
     n = Math.min(n, this.queue.length);
-    if (this.looping){
+    if (this.looping == "all"){
       this.addSongs(this.queue.slice(0,n));
     }
     this.queue = this.queue.slice(n);
@@ -52,12 +59,11 @@ export default class SongQueue {
   }
 
   clear() {
-    this.queue = [];
+    this.queue = this.queue.slice(0, 1);
   }
 
-  toggleLooping(): boolean {
-    this.looping = !this.looping;
-    return this.looping;
+  setLoopType(type: LoopType): LoopType {
+    return this.looping = type;
   }
 
   getQueue() {
