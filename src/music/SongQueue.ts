@@ -26,6 +26,7 @@ export default class SongQueue {
   }
 
   skipSongs(n: number): VideoData | undefined {
+    n = Math.min(n, this.queue.length);
     if (this.looping){
       this.addSongs(this.queue.slice(0,n));
     }
