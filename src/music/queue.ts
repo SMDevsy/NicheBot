@@ -12,12 +12,13 @@ async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  if (BOT_STATE.songQueue.length === 0) {
+  if (BOT_STATE.songQueue.isEmpty()) {
     await interaction.reply("The queue is empty!");
     return;
   }
 
   const reply = BOT_STATE.songQueue
+    .getQueue()
     .map((v, i) => `${i + 1}. ${v.title}`)
     .join("\n");
 

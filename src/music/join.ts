@@ -12,7 +12,7 @@ const data = new SlashCommandBuilder()
   .setName("join")
   .setDescription("Joins the voice channel");
 
-async function execute(interaction: ChatInputCommandInteraction) {
+async function execute(interaction: ChatInputCommandInteraction | any) {
   if (BOT_STATE.voiceConnection) {
     await interaction.reply("I'm already in a voice channel!");
     return;
@@ -42,9 +42,10 @@ async function execute(interaction: ChatInputCommandInteraction) {
     BOT_STATE.voiceConnection = null;
   });
 
-  // commented out to prevent replying to the same interaction twice
-  // this log is not needed anyway
-  //await interaction.reply("Joined voice channel!");
+  // prevent replying to the same interaction twice
+  if (interaction.replied) return;
+
+  await interaction.reply("Joined voice channel!");
 }
 
 const joinCommand = new NicheBotCommand(data, execute);
