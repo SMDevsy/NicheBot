@@ -28,7 +28,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
   await interaction.reply("Working...");
 
   if (!NicheBot.voiceConnection) {
-    joinCommand.execute(interaction);
+    await joinCommand.execute(interaction);
   }
 
   let videos: (VideoData | null)[] = [];

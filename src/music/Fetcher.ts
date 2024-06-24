@@ -9,6 +9,7 @@ const ytstream = require("yt-stream");
 const fs = require("fs");
 
 import YTDlpWrap from "yt-dlp-wrap";
+import NicheDb from "../db";
 const ytdlpWrap = new YTDlpWrap();
 
 interface PlayListInfo {
@@ -37,16 +38,25 @@ export default class Fetcher {
   }
 
   private static normalizeTitle(title: string): string {
-    return title
-    .replace(/'|"/gi, "")
-    .replace(/[\/ —-]/gi, "_")
-    .replace(/[_]+/gi, "_")
-    + "_" + randomUUID();
+    return (
+      title
+        .replace(/'|"/gi, "")
+        .replace(/[\/ —-]/gi, "_")
+        .replace(/[_]+/gi, "_") +
+      "_" +
+      randomUUID()
+    );
   }
-  
+
   static async fetchAudio(video: VideoData): Promise<string> {
-    const fileName = "./download/" +
-      this.normalizeTitle(video.title) + ".mp3";
+    const cachedPath = await NicheDb.getPathForId(video.videoId);
+    if (cachedPath) {
+      console.log(`Found cached path for ${video.title}`);
+      console.log(cachedPath);
+      return cachedPath.filepath;
+    }
+
+    const fileName = "./download/" + this.normalizeTitle(video.title) + ".mp3";
     await ytdlpWrap.execPromise([
       video.url,
       "--format",
@@ -58,6 +68,8 @@ export default class Fetcher {
       fileName
     ]);
     console.log(`Downloaded ${video.title}`);
+    await NicheDb.savePathForId(video.videoId, fileName);
+    console.log(`Saved path for ${video.title} in the database`);
     return fileName;
   }
 }

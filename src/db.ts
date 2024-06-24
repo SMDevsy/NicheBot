@@ -4,6 +4,12 @@ import { Database } from "sqlite3";
 
 const dbFilePath = "./nichebot.db";
 
+export interface UrlCacheRow {
+  videoId: string;
+  filepath: string;
+  created_at: string;
+}
+
 class NicheDatabase {
   db: Database;
   constructor() {
@@ -16,8 +22,38 @@ class NicheDatabase {
         if (error) {
           reject(error);
         }
-        resolve(rows);
+        resolve(rows as UrlCacheRow[]);
       });
+    });
+  }
+
+  getPathForId(videoId: string): Promise<UrlCacheRow | undefined> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        "SELECT * FROM url_cache WHERE video_id = ?",
+        [videoId],
+        (error, row) => {
+          if (error) {
+            reject(error);
+          }
+          resolve(row as any);
+        }
+      );
+    });
+  }
+
+  savePathForId(videoId: string, path: string) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        "INSERT INTO url_cache(video_id, filepath) VALUES(?, ?)",
+        [videoId, path],
+        error => {
+          if (error) {
+            reject(error);
+          }
+          resolve(true);
+        }
+      );
     });
   }
 }
