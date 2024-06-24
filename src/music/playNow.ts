@@ -50,8 +50,8 @@ async function execute(interaction) {
     let queue = NicheBot.songQueue;
     queue.addSongsAt(filtered, 1);
     await interaction.editReply("Added song to the queue!");
-    if (skip) {
-        queue.skipSongs(1);
+    if (skip) queue.skipSongs(1);
+    if (skip || queue.getQueue().length === 1){
         const audioPath = await Fetcher.fetchAudio(queue.currentSong()!);
         const resource = createAudioResource(audioPath);
 
