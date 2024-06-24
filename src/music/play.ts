@@ -41,7 +41,6 @@ async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  console.log(videos);
   // erase null songs, for now there's no info that it was skipped. ADD LATER
   const filtered = videos.filter(v => v !== null) as VideoData[];
 

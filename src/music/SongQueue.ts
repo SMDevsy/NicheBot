@@ -12,6 +12,10 @@ export default class SongQueue {
     this.queue.push(...song);
   }
 
+  addSongsAt(song: VideoData[], index: number) {
+    this.queue.splice(index, 0, ...song);
+  }
+
   currentSong(): VideoData | undefined {
     return this.queue[0];
   }

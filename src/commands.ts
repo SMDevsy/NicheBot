@@ -5,6 +5,7 @@ import leaveCommand from "./music/leave";
 import loopCommand from "./music/loop";
 import pauseCommand from "./music/pause";
 import playCommand from "./music/play";
+import playNowCommand from "./music/playNow";
 import queueCommand from "./music/queue";
 import resumeCommand from "./music/resume";
 import shuffleCommand from "./music/shuffle";
@@ -23,4 +24,5 @@ export default [
   resumeCommand,
   shuffleCommand,
   clearCommand,
+  playNowCommand,
 ] as NicheBotCommand[];
