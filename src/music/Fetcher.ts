@@ -32,9 +32,17 @@ export default class Fetcher {
     return info.videos;
   }
 
-  static async fetchInfo(url: URL): Promise<YouTubeData> {
+  static async fetchInfo(url: URL): Promise<VideoData> {
+    // the argument should be the videoId, extracted by some another component
+    // const cachedData = await NicheDb.getDataForId(url);
+    // if (cachedData) {
+    //   console.log(`Found cached data for ${url.href}`);
+    //   return VideoData.fromSingleYtItem(cachedData);
+    // }
+
     console.log("Fetching info");
-    return await ytstream.getInfo(url.href);
+    const fetchedData = await ytstream.getInfo(url.href);
+    return VideoData.fromSingleYtItem(fetchedData);
   }
 
   private static normalizeTitle(title: string): string {
@@ -67,6 +75,7 @@ export default class Fetcher {
       "--output",
       fileName
     ]);
+
     console.log(`Downloaded ${video.title}`);
     await NicheDb.savePathForId(video.videoId, fileName);
     console.log(`Saved path for ${video.title} in the database`);

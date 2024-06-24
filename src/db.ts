@@ -1,14 +1,19 @@
 const sqlite3 = require("sqlite3").verbose();
 import fs from "fs";
 import { Database } from "sqlite3";
+import VideoData from "./music/VideoData";
 
 const dbFilePath = "./nichebot.db";
 
 export interface UrlCacheRow {
   videoId: string;
   filepath: string;
-  created_at: string;
+  createdAt: number;
 }
+
+type VideoDataCacheRow = VideoData & {
+  createdAt: number;
+};
 
 class NicheDatabase {
   db: Database;
@@ -30,7 +35,7 @@ class NicheDatabase {
   getPathForId(videoId: string): Promise<UrlCacheRow | undefined> {
     return new Promise((resolve, reject) => {
       this.db.get(
-        "SELECT * FROM url_cache WHERE video_id = ?",
+        "SELECT * FROM url_cache WHERE videoId = ?",
         [videoId],
         (error, row) => {
           if (error) {
@@ -45,13 +50,28 @@ class NicheDatabase {
   savePathForId(videoId: string, path: string) {
     return new Promise((resolve, reject) => {
       this.db.run(
-        "INSERT INTO url_cache(video_id, filepath) VALUES(?, ?)",
+        "INSERT INTO url_cache(videoId, filepath) VALUES(?, ?)",
         [videoId, path],
         error => {
           if (error) {
             reject(error);
           }
           resolve(true);
+        }
+      );
+    });
+  }
+
+  getDataForId(videoId: string): Promise<VideoDataCacheRow | undefined> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        "SELECT * FROM video_data_cache WHERE videoId = ?",
+        [videoId],
+        (error, row) => {
+          if (error) {
+            reject(error);
+          }
+          resolve(row as VideoDataCacheRow);
         }
       );
     });
