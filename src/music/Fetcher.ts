@@ -9,6 +9,8 @@ const ytstream = require("yt-stream");
 const fs = require("fs");
 
 import YTDlpWrap from "yt-dlp-wrap";
+import NicheDb from "../db";
+import UrlValidator from "./UrlValidator";
 const ytdlpWrap = new YTDlpWrap();
 
 interface PlayListInfo {
@@ -31,22 +33,46 @@ export default class Fetcher {
     return info.videos;
   }
 
-  static async fetchInfo(url: URL): Promise<YouTubeData> {
-    console.log("Fetching info");
-    return await ytstream.getInfo(url.href);
+  static async fetchInfo(url: URL): Promise<VideoData> {
+    const videoId = UrlValidator.extractVideoId(url);
+    console.log(`Extracted video ID: ${videoId}`);
+    const cachedData = (await NicheDb.getDataForId(videoId)) as VideoData;
+    console.log(cachedData);
+    if (cachedData) {
+      console.log(`Found cached data for ${url.href}`);
+      return cachedData;
+    }
+
+    console.log("Video data not cached, fetching...");
+    const fetchedData = await ytstream.getInfo(url.href);
+    const videoData = VideoData.fromSingleYtItem(fetchedData);
+    console.log(videoData);
+    await NicheDb.saveData(videoData);
+    console.log(`Saved data for ${videoData.title} in the database`);
+
+    return videoData;
   }
 
   private static normalizeTitle(title: string): string {
-    return title
-    .replace(/'|"/gi, "")
-    .replace(/[\/ —-]/gi, "_")
-    .replace(/[_]+/gi, "_")
-    + "_" + randomUUID();
+    return (
+      title
+        .replace(/'|"/gi, "")
+        .replace(/[\/ —-]/gi, "_")
+        .replace(/[_]+/gi, "_") +
+      "_" +
+      randomUUID()
+    );
   }
-  
+
   static async fetchAudio(video: VideoData): Promise<string> {
-    const fileName = "./download/" +
-      this.normalizeTitle(video.title) + ".mp3";
+    const cachedPath = await NicheDb.getPathForId(video.videoId);
+    if (cachedPath) {
+      console.log(`Found cached path for ${video.title}`);
+      console.log(cachedPath);
+      return cachedPath.filepath;
+    }
+
+    const fileName = "./download/" + this.normalizeTitle(video.title) + ".mp3";
     await ytdlpWrap.execPromise([
       video.url,
       "--format",
@@ -57,7 +83,10 @@ export default class Fetcher {
       "--output",
       fileName
     ]);
+
     console.log(`Downloaded ${video.title}`);
+    await NicheDb.savePathForId(video.videoId, fileName);
+    console.log(`Saved path for ${video.title} in the database`);
     return fileName;
   }
 }
