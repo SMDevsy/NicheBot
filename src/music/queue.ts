@@ -20,12 +20,15 @@ async function execute(interaction: ChatInputCommandInteraction) {
   console.log("Showing queue...");
   console.log(NicheBot.songQueue.getQueue());
 
-  const reply = NicheBot.songQueue
-    .getQueue()
-    .map((v, i) => `${i + 1}. ${v.title}`)
-    .join("\n");
+  const reply =
+    "Current queue:\n" +
+    NicheBot.songQueue
+      .getQueue()
+      .map((v, i) => `${i + 1}. ${v.title}`)
+      .join("\n")
+      .slice(0, 2000); // limit to 2000 characters
 
-  interaction.reply("Current queue:\n" + reply);
+  interaction.reply(reply);
 }
 
 const queueCommand = new NicheBotCommand(data, execute);
