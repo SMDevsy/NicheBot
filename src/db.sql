@@ -4,14 +4,20 @@ CREATE TABLE url_cache (
         createdAt INTEGER DEFAULT (unixepoch())
 );
 
-CREATE TABLE playlist_cache (
+CREATE TABLE playlist (
+       playlistId TEXT PRIMARY KEY,
+       createdAt INTEGER DEFAULT (unixepoch()),
+       updatedAt INTEGER DEFAULT (unixepoch()),
+       ttl INTEGER NOT NULL DEFAULT 259200 -- 3 days in seconds
+);
+
+CREATE TABLE playlist_videos_cache (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        playlistUrl TEXT NOT NULL,
+        playlistId TEXT NOT NULL,
         videoId TEXT NOT NULL,
         idx INTEGER NOT NULL, -- song index on the playlist
         createdAt INTEGER DEFAULT (unixepoch()),
-        updatedAt INTEGER DEFAULT (unixepoch()),
-        ttl INTEGER DEFAULT 259200 -- 3 days in seconds
+        updatedAt INTEGER DEFAULT (unixepoch())
 );
 
 CREATE TABLE video_data_cache (

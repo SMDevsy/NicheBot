@@ -46,7 +46,10 @@ async function execute(interaction: ChatInputCommandInteraction) {
   }
 
   // erase null songs, for now there's no info that it was skipped. ADD LATER
+  const before = videos.length;
   const filtered = videos.filter(v => v !== null) as VideoData[];
+  const after = filtered.length;
+  console.log(`Failed to fetch ${before - after} songs`);
 
   if (filtered.length === 0) {
     await interaction.editReply(

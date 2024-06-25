@@ -32,9 +32,7 @@ export async function resolveQuery(query: string): Promise<VideoDataResponses> {
   if (UrlValidator.isPlaylistUrl(url)) {
     const listId = url.searchParams.get("list")!;
     const index = parseInt(url.searchParams.get("index")!);
-    const playlistData = await Fetcher.fetchPlaylist(listId);
-    const videoData = playlistData.map(VideoData.fromPlaylistYtItem);
-    const playlist = await Promise.all(videoData);
+    const playlist = await Fetcher.fetchPlaylist(listId);
     return playlist.slice(index - 1, playlist.length - 1);
   }
 

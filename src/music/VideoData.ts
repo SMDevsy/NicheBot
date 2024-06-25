@@ -13,6 +13,11 @@ export default interface VideoData {
 
 export type VideoDataResponses = (VideoData | null)[];
 
+type VideoDataFromPlaylist = {
+  videoData: VideoData;
+  idx: number;
+};
+
 export default class VideoData {
   static fromSingleYtItem(data: YouTubeData): VideoData {
     return {
@@ -29,11 +34,11 @@ export default class VideoData {
   // fetch additional data for playlist items, they lack data about the channel
   static async fromPlaylistYtItem(
     data: PlaylistVideo
-  ): Promise<VideoData | null> {
+  ): Promise<VideoDataFromPlaylist | null> {
     try {
       const url = new URL(data.video_url);
-      const details = await Fetcher.fetchInfo(url);
-      return details;
+      const videoData = await Fetcher.fetchInfo(url);
+      return { videoData, idx: data.position };
     } catch (err) {
       // the video is probably age restricted
       console.error(err);
