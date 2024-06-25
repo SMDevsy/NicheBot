@@ -1,5 +1,6 @@
 import { PlaylistVideo, YouTubeData } from "yt-stream";
 import Fetcher from "./Fetcher";
+import { log } from "../log";
 
 export default interface VideoData {
   readonly videoId: string;
@@ -41,7 +42,7 @@ export default class VideoData {
       return { videoData, idx: data.position };
     } catch (err) {
       // the video is probably age restricted
-      console.error(err);
+      log.error(err);
       return null;
     }
   }

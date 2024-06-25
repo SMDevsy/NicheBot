@@ -1,16 +1,14 @@
-import { PlaylistVideo, YouTubeData } from "yt-stream";
+import { PlaylistVideo } from "yt-stream";
 import VideoData, { VideoDataResponses } from "./VideoData";
-import { createWriteStream } from "fs";
-import ytdlp from "ytdlp-nodejs";
 import ShortUniqueId from "short-unique-id";
 const { randomUUID } = new ShortUniqueId({ length: 10 });
 
 const ytstream = require("yt-stream");
-const fs = require("fs");
 
 import YTDlpWrap from "yt-dlp-wrap";
 import NicheDb from "../db";
 import UrlValidator from "./UrlValidator";
+import { log } from "../log";
 const ytdlpWrap = new YTDlpWrap();
 
 interface PlayListInfo {
@@ -26,7 +24,7 @@ export default class Fetcher {
    * @returns A list of short URLs that the playlist resolves to
    */
   static async fetchPlaylist(listId: string): Promise<VideoDataResponses> {
-    console.log("Fetching playlist");
+    log.info(`Fetching playlist data for ${listId}`);
     const url = `https://www.youtube.com/playlist?list=${listId}`;
 
     const playlistRow = await NicheDb.getPlaylist(listId);
@@ -35,17 +33,14 @@ export default class Fetcher {
 
     // known playlist
     if (playlistRow && !isExpired) {
-      console.log(`Found cached playlist data for ${listId}`);
+      log.info(`Found cached playlist data for ${listId}`);
       const result = await NicheDb.getVideosForPlaylist(listId);
       const playlistVideos = [result].flat();
-      console.log(result);
-      console.log(playlistVideos, playlistVideos.length);
 
       // get all the videos that were fetched successfully from db
       const videoPromises = playlistVideos.map(video =>
         NicheDb.getDataForId(video.videoId)
       );
-
       const videos = (await Promise.all(videoPromises)).map(
         v => v! as VideoData
       );
@@ -54,13 +49,11 @@ export default class Fetcher {
     }
 
     if (playlistRow && isExpired) {
-      console.log(
-        `Found EXPIRED cached playlist data for ${listId}, deleting...`
-      );
+      log.warn(`Found EXPIRED cached playlist data for ${listId}, deleting...`);
       await NicheDb.deleteVideosForPlaylist(listId);
       await NicheDb.deletePlaylist(listId);
-      console.log(`Deleted playlist data for ${listId}`);
-      console.log(`Fetching playlist data for ${listId} again`);
+      log.warn(`Deleted playlist data for ${listId}`);
+      log.warn(`Fetching playlist data for ${listId} again`);
     }
 
     const info = (await ytstream.getPlaylist(url)) as PlayListInfo;
@@ -75,6 +68,7 @@ export default class Fetcher {
       const videoData = data!.videoData;
       await NicheDb.saveVideoForPlaylist(listId, videoData.videoId, data!.idx);
       await NicheDb.saveData(videoData);
+      log.debug(`Saved data for ${videoData.title} in the DB`);
     });
 
     // return just the video data, sometimes null
@@ -83,20 +77,18 @@ export default class Fetcher {
 
   static async fetchInfo(url: URL): Promise<VideoData> {
     const videoId = UrlValidator.extractVideoId(url);
-    console.log(`Extracted video ID: ${videoId}`);
+    log.info(`Extracted video ID: ${videoId}`);
     const cachedData = (await NicheDb.getDataForId(videoId)) as VideoData;
-    console.log(cachedData);
     if (cachedData) {
-      console.log(`Found cached data for ${url.href}`);
+      log.info(`Found cached data for ${url.href}`);
       return cachedData;
     }
 
-    console.log("Video data not cached, fetching...");
+    log.info("Video data not cached, fetching...");
     const fetchedData = await ytstream.getInfo(url.href);
     const videoData = VideoData.fromSingleYtItem(fetchedData);
-    console.log(videoData);
     await NicheDb.saveData(videoData);
-    console.log(`Saved data for ${videoData.title} in the database`);
+    log.debug(`Saved data for ${videoData.title} in the database`);
 
     return videoData;
   }
@@ -115,8 +107,7 @@ export default class Fetcher {
   static async fetchAudio(video: VideoData): Promise<string> {
     const cachedPath = await NicheDb.getPathForId(video.videoId);
     if (cachedPath) {
-      console.log(`Found cached path for ${video.title}`);
-      console.log(cachedPath);
+      log.info(`Found cached path for ${video.title}`);
       return cachedPath.filepath;
     }
 
@@ -132,9 +123,9 @@ export default class Fetcher {
       fileName
     ]);
 
-    console.log(`Downloaded ${video.title}`);
+    log.info(`Downloaded ${video.title}`);
     await NicheDb.savePathForId(video.videoId, fileName);
-    console.log(`Saved path for ${video.title} in the database`);
+    log.debug(`Saved path for ${video.title} in the database`);
     return fileName;
   }
 }

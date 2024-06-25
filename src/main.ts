@@ -1,18 +1,18 @@
 import NicheDb from "./db";
 import { BOT_CONFIG, Bot, init } from "./init";
+import { log } from "./log";
 
 function main() {
-  console.info("Starting NicheBot...");
-  console.log(BOT_CONFIG);
+  log.info("Starting NicheBot...");
 
   init()
     .then(() => {
-      console.log("Successfully initialized NicheBot.");
+      log.info("Initialized NicheBot. Logging in...");
       Bot.login(BOT_CONFIG.token);
     })
     .catch(err => {
-      console.error("An error occurred while starting NicheBot.");
-      console.error(err);
+      log.error("An error occurred while starting NicheBot.");
+      log.error(err);
     });
 }
 

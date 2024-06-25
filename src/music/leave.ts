@@ -7,6 +7,7 @@ import {
 import NicheBotCommand from "../NicheBotCommand";
 import { VoiceConnectionStatus, joinVoiceChannel } from "@discordjs/voice";
 import NicheBot from "../NicheBot";
+import { log } from "../log";
 
 const data = new SlashCommandBuilder()
   .setName("leave")
@@ -18,7 +19,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  console.log("Leaving voice channel...");
+  log.warn("Leaving voice channel...");
   NicheBot.disconnect();
 
   await interaction.reply("Left the voice channel!");

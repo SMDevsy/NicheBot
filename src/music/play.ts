@@ -12,6 +12,7 @@ import VideoData from "./VideoData";
 import { createAudioResource } from "@discordjs/voice";
 import joinCommand from "./join";
 import SongQueue from "./SongQueue";
+import { log } from "../log";
 
 const data = new SlashCommandBuilder()
   .setName("play")
@@ -46,10 +47,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
   }
 
   // erase null songs, for now there's no info that it was skipped. ADD LATER
-  const before = videos.length;
   const filtered = videos.filter(v => v !== null) as VideoData[];
-  const after = filtered.length;
-  console.log(`Failed to fetch ${before - after} songs`);
 
   if (filtered.length === 0) {
     await interaction.editReply(
@@ -57,6 +55,8 @@ async function execute(interaction: ChatInputCommandInteraction) {
     );
     return;
   }
+
+  log.info(`Adding ${filtered.length} songs to the queue...`);
 
   let queue = NicheBot.songQueue;
 

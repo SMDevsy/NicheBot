@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import NicheBot from "../NicheBot";
 import NicheBotCommand from "../NicheBotCommand";
+import { log } from "../log";
 
 const data = new SlashCommandBuilder()
   .setName("queue")
@@ -17,8 +18,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  console.log("Showing queue...");
-  console.log(NicheBot.songQueue.getQueue());
+  log.debug(NicheBot.songQueue.getQueue());
 
   const reply =
     "Current queue:\n" +

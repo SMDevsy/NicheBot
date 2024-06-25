@@ -1,6 +1,7 @@
 import Fetcher from "./Fetcher";
 import VideoData, { VideoDataResponses } from "./VideoData";
 import UrlValidator from "./UrlValidator";
+import { log } from "../log";
 
 async function resolveSearchQuery(query: string): Promise<URL[]> {
   throw new Error("Unimplemented");
@@ -41,7 +42,7 @@ export async function resolveQuery(query: string): Promise<VideoDataResponses> {
     const ytData = await Fetcher.fetchInfo(url);
     return [ytData];
   } catch (err) {
-    console.error(err);
+    log.error(err);
     return [];
   }
 }

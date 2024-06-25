@@ -2,6 +2,7 @@ const sqlite3 = require("sqlite3").verbose();
 import fs from "fs";
 import { Database } from "sqlite3";
 import VideoData from "./music/VideoData";
+import { log } from "./log";
 
 const dbFilePath = "./nichebot.db";
 
@@ -50,8 +51,7 @@ class NicheDatabase {
     kind: QueryKind
   ) {
     const fn = this.db[kind];
-    console.log("Running statement", statement, params);
-    console.log("With function", kind);
+    log.debug(`${statement} with params: ${params}`);
 
     return new Promise<T | any>((resolve, reject) => {
       fn.call(this.db, statement, params, (error, rows) => {
@@ -171,19 +171,18 @@ function createDb() {
   // Create the database if it doesn't exist
   const db = new sqlite3.Database(dbFilePath, error => {
     if (error) {
-      return console.error(error.message);
+      return log.error(error.message);
     }
   });
-  console.log("Creating tables");
+  log.warn("Creating DB tables");
   createTables(db);
-  console.log("Connection with SQLite has been established");
+  log.info("Connection with SQLite has been established");
   return db;
 }
 
 function createTables(db: Database) {
-  console.log(process.cwd());
   const statements = fs.readFileSync("./src/db.sql").toString();
-  console.log(statements);
+  log.debug(statements);
   db.exec(statements);
 }
 

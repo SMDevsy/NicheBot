@@ -7,6 +7,7 @@ import {
 import NicheBotCommand from "../NicheBotCommand";
 import { VoiceConnectionStatus, joinVoiceChannel } from "@discordjs/voice";
 import NicheBot from "../NicheBot";
+import { log } from "../log";
 
 const data = new SlashCommandBuilder()
   .setName("join")
@@ -18,7 +19,7 @@ async function execute(interaction: ChatInputCommandInteraction | any) {
     return;
   }
 
-  console.log("Joining voice channel...");
+  log.info("Joining voice channel...");
   const member = interaction.member as GuildMember;
   const channel = member.voice.channel as VoiceChannel | null;
 
@@ -34,11 +35,11 @@ async function execute(interaction: ChatInputCommandInteraction | any) {
   });
 
   voiceConnection.on(VoiceConnectionStatus.Ready, () => {
-    console.log("Successfully joined voice channel.");
+    log.info("Successfully joined voice channel.");
     NicheBot.voiceConnection = voiceConnection;
   });
   voiceConnection.on(VoiceConnectionStatus.Disconnected, () => {
-    console.log("Disconnected from voice channel.");
+    log.warn("Disconnected from voice channel.");
     NicheBot.voiceConnection = null;
   });
 

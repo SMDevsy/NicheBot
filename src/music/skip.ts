@@ -3,6 +3,7 @@ import NicheBotCommand from "../NicheBotCommand";
 import NicheBot from "../NicheBot";
 import { createAudioResource } from "@discordjs/voice";
 import Fetcher from "./Fetcher";
+import { log } from "../log";
 
 const data = new SlashCommandBuilder()
   .setName("skip")
@@ -16,7 +17,7 @@ const data = new SlashCommandBuilder()
   );
 
 async function execute(interaction: ChatInputCommandInteraction) {
-  console.log("Skipping song...");
+  log.info("Skipping song...");
   const amount = interaction.options.getInteger("amount") || 1;
   const queue = NicheBot.songQueue;
   const nextSong = queue.skipSongs(amount);
