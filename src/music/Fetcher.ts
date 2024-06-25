@@ -25,12 +25,60 @@ export default class Fetcher {
    * @param listId The ID of the YouTube playlist to resolve
    * @returns A list of short URLs that the playlist resolves to
    */
-  static async fetchPlaylist(listId: string): Promise<PlaylistVideo[]> {
+  static async fetchPlaylist(listId: string): Promise<VideoDataResponses> {
     console.log("Fetching playlist");
     const url = `https://www.youtube.com/playlist?list=${listId}`;
+
+    const playlistRow = await NicheDb.getPlaylist(listId);
+    const isExpired =
+      playlistRow && playlistRow.createdAt + playlistRow.ttl > Date.now();
+
+    // known playlist
+    if (playlistRow && !isExpired) {
+      console.log(`Found cached playlist data for ${listId}`);
+      const result = await NicheDb.getVideosForPlaylist(listId);
+      const playlistVideos = [result].flat();
+      console.log(result);
+      console.log(playlistVideos, playlistVideos.length);
+
+      // get all the videos that were fetched successfully from db
+      const videoPromises = playlistVideos.map(video =>
+        NicheDb.getDataForId(video.videoId)
+      );
+
+      const videos = (await Promise.all(videoPromises)).map(
+        v => v! as VideoData
+      );
+
+      return videos;
+    }
+
+    if (playlistRow && isExpired) {
+      console.log(
+        `Found EXPIRED cached playlist data for ${listId}, deleting...`
+      );
+      await NicheDb.deleteVideosForPlaylist(listId);
+      await NicheDb.deletePlaylist(listId);
+      console.log(`Deleted playlist data for ${listId}`);
+      console.log(`Fetching playlist data for ${listId} again`);
+    }
+
     const info = (await ytstream.getPlaylist(url)) as PlayListInfo;
-    console.log("Playlist info");
-    return info.videos;
+    const videoData = info.videos.map(VideoData.fromPlaylistYtItem);
+    const videos = await Promise.all(videoData);
+
+    // save the playlist entry with a TTL
+    await NicheDb.savePlaylist(listId);
+
+    // save the videos that were fetched successfully and assign them to the playlist
+    videos.filter(v => v !== null).map(async data => {
+      const videoData = data!.videoData;
+      await NicheDb.saveVideoForPlaylist(listId, videoData.videoId, data!.idx);
+      await NicheDb.saveData(videoData);
+    });
+
+    // return just the video data, sometimes null
+    return videos.map(v => (v ? v.videoData : null));
   }
 
   static async fetchInfo(url: URL): Promise<VideoData> {

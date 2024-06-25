@@ -4,3 +4,4 @@ node_modules
 download/
 yt-dlp
 *.exe
+*.db
