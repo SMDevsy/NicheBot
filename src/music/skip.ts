@@ -27,13 +27,13 @@ async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  interaction.reply("Working...");
+  await interaction.reply("Working...");
 
   const fetched = await Fetcher.fetchAudio(nextSong);
   const resource = createAudioResource(fetched);
   NicheBot.audioPlayer.play(resource);
 
-  interaction.editReply(`Skipped ${amount} songs!`);
+  await interaction.editReply(`Skipped ${amount} songs!`);
 }
 
 const skipCommand = new NicheBotCommand(data, execute);

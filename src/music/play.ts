@@ -28,7 +28,11 @@ async function execute(interaction: ChatInputCommandInteraction) {
   await interaction.reply("Working...");
 
   if (!NicheBot.voiceConnection) {
-    await joinCommand.execute(interaction);
+    joinCommand.execute(interaction);
+    // active wait (every 50ms but still) until the bot joins the voice channel
+    while (!NicheBot.voiceConnection) {
+      await new Promise(r => setTimeout(r, 50));
+    }
   }
 
   let videos: (VideoData | null)[] = [];

@@ -10,6 +10,7 @@ const fs = require("fs");
 
 import YTDlpWrap from "yt-dlp-wrap";
 import NicheDb from "../db";
+import UrlValidator from "./UrlValidator";
 const ytdlpWrap = new YTDlpWrap();
 
 interface PlayListInfo {
@@ -33,16 +34,23 @@ export default class Fetcher {
   }
 
   static async fetchInfo(url: URL): Promise<VideoData> {
-    // the argument should be the videoId, extracted by some another component
-    // const cachedData = await NicheDb.getDataForId(url);
-    // if (cachedData) {
-    //   console.log(`Found cached data for ${url.href}`);
-    //   return VideoData.fromSingleYtItem(cachedData);
-    // }
+    const videoId = UrlValidator.extractVideoId(url);
+    console.log(`Extracted video ID: ${videoId}`);
+    const cachedData = (await NicheDb.getDataForId(videoId)) as VideoData;
+    console.log(cachedData);
+    if (cachedData) {
+      console.log(`Found cached data for ${url.href}`);
+      return cachedData;
+    }
 
-    console.log("Fetching info");
+    console.log("Video data not cached, fetching...");
     const fetchedData = await ytstream.getInfo(url.href);
-    return VideoData.fromSingleYtItem(fetchedData);
+    const videoData = VideoData.fromSingleYtItem(fetchedData);
+    console.log(videoData);
+    await NicheDb.saveData(videoData);
+    console.log(`Saved data for ${videoData.title} in the database`);
+
+    return videoData;
   }
 
   private static normalizeTitle(title: string): string {

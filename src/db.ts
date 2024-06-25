@@ -21,60 +21,58 @@ class NicheDatabase {
     this.db = createDb();
   }
 
-  getUrls() {
-    return new Promise((resolve, reject) => {
-      this.db.all("SELECT * FROM url_cache", (error, rows) => {
+  private intoPromise<T>(statement: string, params: Array<any> = []) {
+    const verb = statement.split(" ")[0];
+    const fn = verb === "SELECT" ? this.db.get : this.db.run;
+    console.log("Running statement", statement, params);
+    console.log("With function", verb === "SELECT" ? "get" : "run");
+
+    return new Promise<T | any>((resolve, reject) => {
+      fn.call(this.db, statement, params, (error, rows) => {
         if (error) {
           reject(error);
         }
-        resolve(rows as UrlCacheRow[]);
+        resolve(verb === "SELECT" ? (rows as T) : true);
       });
     });
   }
 
+  getUrls() {
+    const statement = "SELECT * FROM url_cache";
+    return this.intoPromise<UrlCacheRow[]>(statement);
+  }
+
   getPathForId(videoId: string): Promise<UrlCacheRow | undefined> {
-    return new Promise((resolve, reject) => {
-      this.db.get(
-        "SELECT * FROM url_cache WHERE videoId = ?",
-        [videoId],
-        (error, row) => {
-          if (error) {
-            reject(error);
-          }
-          resolve(row as any);
-        }
-      );
-    });
+    const statement = "SELECT * FROM url_cache WHERE videoId = ?";
+    const params = [videoId];
+    return this.intoPromise<UrlCacheRow>(statement, params);
   }
 
   savePathForId(videoId: string, path: string) {
-    return new Promise((resolve, reject) => {
-      this.db.run(
-        "INSERT INTO url_cache(videoId, filepath) VALUES(?, ?)",
-        [videoId, path],
-        error => {
-          if (error) {
-            reject(error);
-          }
-          resolve(true);
-        }
-      );
-    });
+    const statement = "INSERT INTO url_cache(videoId, filepath) VALUES(?, ?)";
+    const params = [videoId, path];
+    return this.intoPromise<true>(statement, params);
   }
 
   getDataForId(videoId: string): Promise<VideoDataCacheRow | undefined> {
-    return new Promise((resolve, reject) => {
-      this.db.get(
-        "SELECT * FROM video_data_cache WHERE videoId = ?",
-        [videoId],
-        (error, row) => {
-          if (error) {
-            reject(error);
-          }
-          resolve(row as VideoDataCacheRow);
-        }
-      );
-    });
+    const statement = "SELECT * FROM video_data_cache WHERE videoId = ?";
+    const params = [videoId];
+    return this.intoPromise<VideoDataCacheRow>(statement, params);
+  }
+
+  saveData(data: VideoData) {
+    const statement =
+      "INSERT INTO video_data_cache(videoId, title, authorName, channelUrl, url, thumbnailUrl, duration) VALUES(?, ?, ?, ?, ?, ?, ?)";
+    const params = [
+      data.videoId,
+      data.title,
+      data.authorName,
+      data.channelUrl,
+      data.url,
+      data.thumbnailUrl,
+      data.duration
+    ];
+    return this.intoPromise<true>(statement, params);
   }
 }
 
