@@ -111,6 +111,7 @@ export default class Fetcher {
       return cachedPath.filepath;
     }
 
+    log.info(`Downloading audio for ${video.title}...`);
     const fileName = "./download/" + this.normalizeTitle(video.title) + ".mp3";
     await ytdlpWrap.execPromise([
       video.url,
