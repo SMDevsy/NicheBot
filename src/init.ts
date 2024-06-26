@@ -65,13 +65,13 @@ Bot.on("interactionCreate", async (interaction) => {
   }
 });
 
+import { handleMessageCreate, handleVoiceStateUpdate } from "./stats/handlers";
 Bot.on("messageCreate", handleMessageCreate);
 Bot.on("voiceStateUpdate", handleVoiceStateUpdate);
 
 import commands from "./commands";
 import NicheBot from "./NicheBot";
 import { log } from "./log";
-import { handleMessageCreate, handleVoiceStateUpdate } from "./stats/handlers";
 
 export async function init() {
   log.info("Downloading yt-dlp.");
