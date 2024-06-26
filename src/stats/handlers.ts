@@ -9,10 +9,23 @@ export async function handleVoiceStateUpdate(
 
   const member = oldState.member?.user.username;
 
-  if (oldState.channelId === null) {
+  // THIS IS HORRIBLE. FIX LATER.
+  if (!oldState.channelId) {
     log.info(`${member} joined ${newState.channel?.name}`);
   } else if (newState.channelId === null) {
     log.info(`${member} left ${oldState.channel?.name}`);
+  } else if (newState.streaming && !oldState.streaming) {
+    log.info(`${member} started streaming in ${newState.channel?.name}`);
+  } else if (!newState.streaming && oldState.streaming) {
+    log.info(`${member} stopped streaming in ${oldState.channel?.name}`);
+  } else if (oldState.selfMute && !newState.selfMute) {
+    log.info(`${member} unmuted in ${newState.channel?.name}`);
+  } else if (!oldState.selfMute && newState.selfMute) {
+    log.info(`${member} muted in ${newState.channel?.name}`);
+  } else if (oldState.selfDeaf && !newState.selfDeaf) {
+    log.info(`${member} undeafened in ${newState.channel?.name}`);
+  } else if (!oldState.selfDeaf && newState.selfDeaf) {
+    log.info(`${member} deafened in ${newState.channel?.name}`);
   } else {
     log.info(
       `${member} moved from ${oldState.channel?.name} to ${newState.channel?.name}`,
