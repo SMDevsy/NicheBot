@@ -60,7 +60,7 @@ Bot.on("interactionCreate", async (interaction) => {
 
   const command = commands.find((c) => c.data.name === interaction.commandName);
   if (command) {
-    log.info(`Executing ${command.data.name}`);
+    log.info(`COMMAND ${command.data.name} by ${interaction.user.tag}`);
     command.execute(interaction);
   }
 });

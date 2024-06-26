@@ -18,14 +18,26 @@ export async function handleVoiceStateUpdate(
     log.info(`${member} started streaming in ${newState.channel?.name}`);
   } else if (!newState.streaming && oldState.streaming) {
     log.info(`${member} stopped streaming in ${oldState.channel?.name}`);
-  } else if (oldState.selfMute && !newState.selfMute) {
-    log.info(`${member} unmuted in ${newState.channel?.name}`);
-  } else if (!oldState.selfMute && newState.selfMute) {
-    log.info(`${member} muted in ${newState.channel?.name}`);
   } else if (oldState.selfDeaf && !newState.selfDeaf) {
     log.info(`${member} undeafened in ${newState.channel?.name}`);
   } else if (!oldState.selfDeaf && newState.selfDeaf) {
     log.info(`${member} deafened in ${newState.channel?.name}`);
+  } else if (oldState.selfMute && !newState.selfMute) {
+    log.info(`${member} unmuted in ${newState.channel?.name}`);
+  } else if (!oldState.selfMute && newState.selfMute) {
+    log.info(`${member} muted in ${newState.channel?.name}`);
+  } else if (!oldState.selfVideo && newState.selfVideo) {
+    log.info(`${member} started video in ${newState.channel?.name}`);
+  } else if (oldState.selfVideo && !newState.selfVideo) {
+    log.info(`${member} stopped video in ${newState.channel?.name}`);
+  } else if (!oldState.serverDeaf && newState.serverDeaf) {
+    log.info(`${member} server-deafened in ${newState.channel?.name}`);
+  } else if (oldState.serverDeaf && !newState.serverDeaf) {
+    log.info(`${member} server-undeafened in ${newState.channel?.name}`);
+  } else if (!oldState.serverMute && newState.serverMute) {
+    log.info(`${member} server-muted in ${newState.channel?.name}`);
+  } else if (oldState.serverMute && !newState.serverMute) {
+    log.info(`${member} server-unmuted in ${newState.channel?.name}`);
   } else {
     log.info(
       `${member} moved from ${oldState.channel?.name} to ${newState.channel?.name}`,

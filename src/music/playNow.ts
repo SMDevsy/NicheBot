@@ -6,60 +6,66 @@ import VideoData from "./VideoData";
 import { resolveQuery } from "./resolveQuery";
 import Fetcher from "./Fetcher";
 import { createAudioResource } from "@discordjs/voice";
+import { log } from "../log";
 
 const data = new SlashCommandBuilder()
-    .setName("playnow")
-    .setDescription("Play a song immediately")
-    .addStringOption(option =>
-        option
-            .setName("query")
-            .setDescription("The song to play")
-            .setRequired(true)
-    )
-    .addBooleanOption(option =>
-        option
-            .setName("skip")
-            .setDescription("Skip the current song")
-            .setRequired(false)
-    );
+  .setName("playnow")
+  .setDescription("Play a song immediately")
+  .addStringOption((option) =>
+    option
+      .setName("query")
+      .setDescription("The song to play")
+      .setRequired(true),
+  )
+  .addBooleanOption((option) =>
+    option
+      .setName("skip")
+      .setDescription("Skip the current song")
+      .setRequired(false),
+  );
 
 async function execute(interaction) {
-    const query = interaction.options.getString("query", true);
-    const skip = interaction.options.getBoolean("skip") ?? false;
-    await interaction.reply(`Working...`);
-    if(!NicheBot.voiceConnection) {
-        joinCommand.execute(interaction);
-    }
-    let videos: (VideoData | null)[] = [];
-    try {
-        videos = await resolveQuery(query);
-    } catch (e) {
-        await interaction.editReply(
-        "An error occured while processing the query: " + e
-        );
-        return;
-    }
+  const query = interaction.options.getString("query", true);
+  const skip = interaction.options.getBoolean("skip") ?? false;
+  await interaction.reply(`Working...`);
 
-    const filtered = videos.filter(v => v !== null) as VideoData[];
-    if (filtered.length === 0) {
-        await interaction.editReply(
-        "No valid videos found! This may be due to age restrictions or internal errors."
-        );
-        return;
-    }
-    let queue = NicheBot.songQueue;
-    queue.addSongsAt(filtered, 1);
-    await interaction.editReply("Added song to the queue!");
-    if (skip) queue.skipSongs(1);
-    if (skip || queue.getQueue().length === 1){
-        const audioPath = await Fetcher.fetchAudio(queue.currentSong()!);
-        const resource = createAudioResource(audioPath);
+  await NicheBot.joinChannel(interaction);
 
-        NicheBot.voiceConnection!.subscribe(NicheBot.audioPlayer._getPlayer());
-        NicheBot.audioPlayer.play(resource);
+  let videos: VideoData[] = [];
+  try {
+    videos = await NicheBot.handleQuery(interaction, query);
+  } catch (e) {
+    log.error(e);
+    return;
+  }
 
-        await interaction.editReply(`Playing now: ${queue.currentSong()!.title}`);
-    }
+  let queue = NicheBot.songQueue;
+  let oldQueueLength = queue.getQueue().length;
+  queue.addSongsAt(videos, 1);
+  await interaction.editReply("Added song to the queue!");
+
+  // just append to the beggining of the queue
+  if (!skip && oldQueueLength > 0) {
+    log.info("PlayNow - Added song(s) to the queue");
+    return;
+  }
+
+  // For some reason the user used `playnow` like `play`, to initiate the playback
+  if (!skip && oldQueueLength === 0) {
+    log.info("PlayNow - Playing song immediately");
+    NicheBot.downloadAndPlayCurrent(interaction);
+    return;
+  }
+
+  // skip only if the queue wasnt empty. Otherwise we'd skip one of the new songs
+  if (oldQueueLength > 0) {
+    log.info("PlayNow - Skipping current song");
+    queue.skipSongs(1);
+  }
+
+  // by now we know skip is true, no if
+  log.info("Playing next song immediately");
+  NicheBot.downloadAndPlayCurrent(interaction);
 }
 
 const playNowCommand = new NicheBotCommand(data, execute);

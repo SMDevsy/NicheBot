@@ -1,81 +1,44 @@
-import {
-  ChatInputCommandInteraction,
-  GuildMember,
-  SlashCommandBuilder,
-  VoiceChannel
-} from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import NicheBotCommand from "../NicheBotCommand";
-import { resolveQuery } from "./resolveQuery";
-import Fetcher from "./Fetcher";
 import NicheBot from "../NicheBot";
 import VideoData from "./VideoData";
-import { createAudioResource } from "@discordjs/voice";
-import joinCommand from "./join";
-import SongQueue from "./SongQueue";
 import { log } from "../log";
 
 const data = new SlashCommandBuilder()
   .setName("play")
   .setDescription("Play a song or a playlist")
-  .addStringOption(option =>
+  .addStringOption((option) =>
     option
       .setName("query")
       .setDescription("The song or playlist to play")
-      .setRequired(true)
+      .setRequired(true),
   );
 
-async function execute(interaction: ChatInputCommandInteraction) {
+async function execute(interaction: ChatInputCommandInteraction): Result<T, E> {
   const query = interaction.options.getString("query", true);
   await interaction.reply("Working...");
 
-  if (!NicheBot.voiceConnection) {
-    joinCommand.execute(interaction);
-    // active wait (every 50ms but still) until the bot joins the voice channel
-    while (!NicheBot.voiceConnection) {
-      await new Promise(r => setTimeout(r, 50));
-    }
-  }
+  await NicheBot.joinChannel(interaction);
 
-  let videos: (VideoData | null)[] = [];
+  let videos: VideoData[] = [];
   try {
-    videos = await resolveQuery(query);
+    videos = await NicheBot.handleQuery(interaction, query);
   } catch (e) {
-    await interaction.editReply(
-      "An error occured while processing the query: " + e
-    );
+    log.error(e);
     return;
   }
 
-  // erase null songs, for now there's no info that it was skipped. ADD LATER
-  const filtered = videos.filter(v => v !== null) as VideoData[];
-
-  if (filtered.length === 0) {
-    await interaction.editReply(
-      "No valid videos found! This may be due to age restrictions or internal errors."
-    );
-    return;
-  }
-
-  log.info(`Adding ${filtered.length} songs to the queue...`);
+  log.info(`Adding ${videos.length} songs to the queue...`);
 
   let queue = NicheBot.songQueue;
-
   if (!queue.isEmpty()) {
-    queue.addSongs(filtered);
+    queue.addSongs(videos);
     interaction.editReply("Added songs to the queue!");
     return;
   }
 
-  queue.addSongs(filtered);
-  const audioPath = await Fetcher.fetchAudio(queue.currentSong()!);
-  const resource = createAudioResource(audioPath);
-
-  NicheBot.voiceConnection!.subscribe(NicheBot.audioPlayer._getPlayer());
-  NicheBot.audioPlayer.play(resource);
-
-  await interaction.editReply(
-    `Playing ${NicheBot.songQueue.currentSong()!.title}`
-  );
+  queue.addSongs(videos);
+  NicheBot.downloadAndPlayCurrent(interaction);
 }
 
 const playCommand = new NicheBotCommand(data, execute);
