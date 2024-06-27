@@ -14,7 +14,7 @@ const data = new SlashCommandBuilder()
       .setRequired(true),
   );
 
-async function execute(interaction: ChatInputCommandInteraction): Result<T, E> {
+async function execute(interaction: ChatInputCommandInteraction) {
   const query = interaction.options.getString("query", true);
   await interaction.reply("Working...");
 
