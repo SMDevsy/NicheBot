@@ -6,10 +6,13 @@ export const log = winston.createLogger({
   format: combine(
     colorize({ all: true }),
     timestamp({
-      format: "YYYY-MM-DD hh:mm:ss"
+      format: "YYYY-MM-DD hh:mm:ss",
     }),
     align(),
-    printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`)
+    printf((info) => `[${info.timestamp}] ${info.level}: ${info.message}`),
   ),
-  transports: [new winston.transports.Console()]
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: "nichebot.log", colorize: false }),
+  ],
 });
