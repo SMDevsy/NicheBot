@@ -41,8 +41,8 @@ export default class SongQueue {
       return this.currentSong();
     }
     n = Math.min(n, this.queue.length);
-    if (this.looping == "all"){
-      this.addSongs(this.queue.slice(0,n));
+    if (this.looping == "all") {
+      this.addSongs(this.queue.slice(0, n));
     }
     this.queue = this.queue.slice(n);
     return this.currentSong();
@@ -70,7 +70,7 @@ export default class SongQueue {
   }
 
   setLoopType(type: LoopType): LoopType {
-    return this.looping = type;
+    return (this.looping = type);
   }
 
   getQueue() {

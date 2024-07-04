@@ -17,14 +17,25 @@ class NicheBotClass {
     this.songQueue.clear();
   }
   downloadAndPlayCurrent(interaction?) {
-    Fetcher.fetchAudio(this.songQueue.currentSong()!).then((path) => {
-      const resource = createAudioResource(path);
-      NicheBot.voiceConnection!.subscribe(NicheBot.audioPlayer._getPlayer());
-      NicheBot.audioPlayer.play(resource);
-      interaction?.editReply(
-        `Playing ${NicheBot.songQueue.currentSong()!.title}`,
-      );
-    });
+    Fetcher.fetchAudio(this.songQueue.currentSong()!)
+      .then((path) => {
+        const resource = createAudioResource(path);
+        NicheBot.voiceConnection!.subscribe(NicheBot.audioPlayer._getPlayer());
+        NicheBot.audioPlayer.play(resource);
+        interaction?.editReply(
+          `Playing ${NicheBot.songQueue.currentSong()!.title}`,
+        );
+      })
+      .catch((error) => {
+        log.error(
+          `Error on attempt to download and play next song: ${(error as Error).message}`,
+        );
+        interaction?.editReply(
+          `Playing ${NicheBot.songQueue.currentSong()!.title}`,
+        );
+        this.songQueue.nextSong();
+        this.downloadAndPlayCurrent();
+      });
   }
   async joinChannel(interaction) {
     if (!NicheBot.voiceConnection) {
