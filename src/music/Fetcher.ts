@@ -38,11 +38,11 @@ export default class Fetcher {
       const playlistVideos = [result].flat();
 
       // get all the videos that were fetched successfully from db
-      const videoPromises = playlistVideos.map((video) =>
-        NicheDb.getDataForId(video.videoId),
+      const videoPromises = playlistVideos.map(video =>
+        NicheDb.getDataForId(video.videoId)
       );
       const videos = (await Promise.all(videoPromises)).map(
-        (v) => v! as VideoData,
+        v => v! as VideoData
       );
 
       return videos;
@@ -64,21 +64,15 @@ export default class Fetcher {
     await NicheDb.savePlaylist(listId);
 
     // save the videos that were fetched successfully and assign them to the playlist
-    videos
-      .filter((v) => v !== null)
-      .map(async (data) => {
-        const videoData = data!.videoData;
-        await NicheDb.saveVideoForPlaylist(
-          listId,
-          videoData.videoId,
-          data!.idx,
-        );
-        await NicheDb.saveData(videoData);
-        log.debug(`Saved data for ${videoData.title} in the DB`);
-      });
+    videos.filter(v => v !== null).map(async data => {
+      const videoData = data!.videoData;
+      await NicheDb.saveVideoForPlaylist(listId, videoData.videoId, data!.idx);
+      await NicheDb.saveData(videoData);
+      log.debug(`Saved data for ${videoData.title} in the DB`);
+    });
 
     // return just the video data, sometimes null
-    return videos.map((v) => (v ? v.videoData : null));
+    return videos.map(v => (v ? v.videoData : null));
   }
 
   static async fetchInfo(url: URL): Promise<VideoData> {
@@ -119,22 +113,16 @@ export default class Fetcher {
 
     log.info(`Downloading audio for ${video.title}...`);
     const fileName = "./download/" + this.normalizeTitle(video.title) + ".mp3";
-    try {
-      await ytdlpWrap.execPromise([
-        video.url,
-        "--format",
-        "bestaudio",
-        "--extract-audio",
-        "--audio-format",
-        "mp3",
-        "--output",
-        fileName,
-      ]);
-    } catch (error) {
-      throw new Error(
-        `Failed to download the video: ${(error as Error).message}`,
-      );
-    }
+    await ytdlpWrap.execPromise([
+      video.url,
+      "--format",
+      "bestaudio",
+      "--extract-audio",
+      "--audio-format",
+      "mp3",
+      "--output",
+      fileName
+    ]);
 
     log.info(`Downloaded ${video.title}`);
     await NicheDb.savePathForId(video.videoId, fileName);

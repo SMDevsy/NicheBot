@@ -28,6 +28,9 @@ export default class NicheAudioPlayer {
         }
         NicheBot.downloadAndPlayCurrent();
         log.info(`Playing ${nextSong.title}`);
+        // const audioPath = await Fetcher.fetchAudio(nextSong);
+        // const resource = createAudioResource(audioPath);
+        // this.player.play(resource);
       }
     });
 
