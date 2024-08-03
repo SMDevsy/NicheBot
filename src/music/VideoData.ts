@@ -10,7 +10,7 @@ export default interface VideoData {
   readonly url: string;
   readonly thumbnailUrl: string;
   readonly duration: number;
-};
+}
 
 export type VideoDataResponses = (VideoData | null)[];
 
@@ -28,18 +28,21 @@ export default class VideoData {
       channelUrl: data.channel.url,
       url: data.url,
       duration: data.duration,
-      thumbnailUrl: data.default_thumbnail.url
+      thumbnailUrl: data.default_thumbnail.url,
     };
   }
 
   // fetch additional data for playlist items, they lack data about the channel
   static async fromPlaylistYtItem(
-    data: PlaylistVideo
+    data: PlaylistVideo,
   ): Promise<VideoDataFromPlaylist | null> {
     try {
       const url = new URL(data.video_url);
       const videoData = await Fetcher.fetchInfo(url);
-      return { videoData, idx: data.position };
+      if (!data.position) {
+        return null;
+      }
+      return { videoData, idx: data.position! };
     } catch (err) {
       // the video is probably age restricted
       log.error(err);
